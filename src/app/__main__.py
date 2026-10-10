@@ -1,20 +1,25 @@
-from langchain_core.prompts import ChatPromptTemplate
+import logging
+
+import uvicorn
+
+from app.core.config import get_settings
 
 
 def main() -> None:
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", "You are a concise assistant."),
-            ("human", "Explain {topic} in one sentence."),
-        ]
+    settings = get_settings()
+    logging.basicConfig(
+        level=settings.log_level,
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
-    messages = prompt.invoke({"topic": "LangChain"})
-
-    print("Python project is ready.")
-    for message in messages.messages:
-        print(f"{message.type}: {message.content}")
+    uvicorn.run(
+        "app.main:app",
+        host=settings.host,
+        port=settings.port,
+        reload=settings.reload,
+        log_level=settings.log_level.lower(),
+        access_log=False,
+    )
 
 
 if __name__ == "__main__":
     main()
-
